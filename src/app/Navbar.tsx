@@ -1,6 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { ExternalLinkIcon } from 'lucide-react';
+import Link from 'next/link';
 // const DynamicLoginNavLink = dynamic(
 //   () => import('./LoginNavLink').then((module) => module.LoginNavLink),
 //   {
@@ -72,7 +73,6 @@ import { ExternalLinkIcon } from 'lucide-react';
 //   );
 // }
 
-import Link from 'next/link';
 // import { ThemeToggle } from '@/components/tailwind/ThemeToggle';
 
 export const ExternalNavigation = () => {
@@ -93,6 +93,12 @@ export const ExternalNavigation = () => {
           href="#"
         >
           Features
+        </Link>
+        <Link
+          className="text-sm hidden lg:block font-medium border border-red-500 rounded-md px-2 py-1"
+          href="/db-testing"
+        >
+          DB Testing
         </Link>
         <Link
           className="text-sm hidden lg:block font-medium hover:underline underline-offset-4"
