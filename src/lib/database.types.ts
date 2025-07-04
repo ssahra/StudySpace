@@ -9,45 +9,77 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      items: {
+      room_schedules: {
         Row: {
-          created_at: string
-          description: string
+          created_at: string | null
+          date: string
           id: string
-          name: string
+          room_id: string | null
+          time_from: string
+          time_to: string
         }
         Insert: {
-          created_at?: string
-          description: string
+          created_at?: string | null
+          date: string
           id?: string
-          name: string
+          room_id?: string | null
+          time_from: string
+          time_to: string
         }
         Update: {
-          created_at?: string
-          description?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          room_id?: string | null
+          time_from?: string
+          time_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_schedules_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          capacity: number
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          capacity: number
+          id?: string
+          name: string
+          type: string
+        }
+        Update: {
+          capacity?: number
           id?: string
           name?: string
+          type?: string
         }
         Relationships: []
       }
-      private_items: {
+      users: {
         Row: {
-          created_at: string
-          description: string
+          created_at: string | null
           id: string
-          name: string
+          role: string
         }
         Insert: {
-          created_at?: string
-          description: string
-          id?: string
-          name: string
+          created_at?: string | null
+          id: string
+          role: string
         }
         Update: {
-          created_at?: string
-          description?: string
+          created_at?: string | null
           id?: string
-          name?: string
+          role?: string
         }
         Relationships: []
       }

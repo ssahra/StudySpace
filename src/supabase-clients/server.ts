@@ -2,7 +2,7 @@ import { Database } from '@/lib/database.types';
 import { createServerClient } from '@supabase/ssr';
 import { cookies, type UnsafeUnwrappedCookies } from 'next/headers';
 
-export const createSupabaseClient = () => {
+export const createSupabaseClient = (p0: unknown) => {
   const cookieStore = cookies() as unknown as UnsafeUnwrappedCookies;
 
   return createServerClient<Database>(
