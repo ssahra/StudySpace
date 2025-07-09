@@ -4,6 +4,8 @@ node_modules
 tsconfig.tsbuildinfo
 supabase/.temp/project-ref
 .DS_Store
+.cursor/rules
+./ProjectDocs
 
 # next.js
 /.next

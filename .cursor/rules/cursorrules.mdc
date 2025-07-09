@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- Plan before writing code: break down what’s needed.
+- Implement features completely — imports, types, handlers, UI, everything.
+- Respond concisely unless explanation is asked for.
+- Be opinionated, but adapt to the style of the existing codebase.
+- Always complete the code fully — no TODOs, placeholders, or stubs.
+- Follow DRY, KISS, and maintain clear component structure.
+- Minimize logic in JSX — abstract to helpers/hooks when needed.
+- Ensure all code is readable, typed, and consistent with the project structure.

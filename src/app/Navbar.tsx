@@ -100,6 +100,14 @@ export const ExternalNavigation = () => {
         >
           DB Testing
         </Link>
+
+        <Link
+          className="text-sm hidden lg:block font-medium border border-red-500 rounded-md px-2 py-1"
+          href="/login"
+        >
+          Login
+        </Link>
+
         <Link
           className="text-sm hidden lg:block font-medium hover:underline underline-offset-4"
           href="#"

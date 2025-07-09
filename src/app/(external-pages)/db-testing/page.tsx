@@ -7,10 +7,17 @@ type Room = Database['public']['Tables']['rooms']['Row']
 
 export default async function Data() {
 
+
     const supabase = createSupabaseClient({
         cookies: cookies(),
         headers: headers(),
     })
+
+    // export async function getPrivateItem(id: string): Promise<Room | null> {
+    //     const supabase = createSupabaseClient({
+    //       cookies: cookies(),
+    //       headers: headers(),
+    //     });}
 
 
     const { data, error } = await supabase

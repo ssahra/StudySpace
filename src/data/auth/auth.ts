@@ -162,3 +162,37 @@ export const resetPasswordAction = actionClient
 
     // No need to return anything if the operation is successful
   });
+
+/**
+ * Creates a new user with role assignment in the users table.
+ * This should be called after successful signup to populate the users table.
+ * @param {Object} params - The parameters for user creation.
+ * @param {string} params.userId - The user ID from auth.users.
+ * @param {string} params.username - The username for the user.
+ * @param {string} params.role - The role for the user (student, staff, admin).
+ * @throws {Error} If there's an error creating the user.
+ */
+export const createUserWithRoleAction = actionClient
+  .schema(z.object({
+    userId: z.string().uuid(),
+    username: z.string().min(1),
+    role: z.enum(['student', 'staff', 'admin']),
+  }))
+  .action(async ({ parsedInput: { userId, username, role } }) => {
+    const supabase = createSupabaseClient();
+
+    const { error } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        username,
+        role,
+        createdat: new Date().toISOString(),
+      });
+
+    if (error) {
+      throw new Error(`Failed to create user: ${error.message}`);
+    }
+
+    return { success: true };
+  });

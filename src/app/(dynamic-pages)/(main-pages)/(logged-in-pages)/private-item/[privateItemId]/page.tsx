@@ -17,6 +17,7 @@ import { ConfirmDeleteItemDialog } from './ConfirmDeleteItemDialog';
 
 async function PrivateItem({ privateItemId }: { privateItemId: string }) {
   const item = await getPrivateItem(privateItemId);
+  if (!item) return notFound();
 
   return (
     <Card className="shadow-md border-t-4 border-t-primary">
@@ -42,15 +43,26 @@ async function PrivateItem({ privateItemId }: { privateItemId: string }) {
             <T.Small className="text-muted-foreground">Description</T.Small>
             <T.P className="mt-1">{item.description}</T.P>
           </div>
-
-          {item.created_at && (
+          {/* 
+          {'created_at' in item && typeof item.created_at === 'string' && (
             <div className="flex items-center gap-1 text-muted-foreground text-sm">
               <Calendar className="h-3 w-3" />
               <span>
                 Created on {new Date(item.created_at).toLocaleDateString()}
               </span>
             </div>
-          )}
+          )} */}
+
+          {
+            item.created_at && (
+              <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                <Calendar className="h-3 w-3" />
+                <span>
+                  Created on {new Date(item.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            )
+          }
         </div>
       </CardContent>
       <CardFooter className="flex justify-between border-t pt-4">
