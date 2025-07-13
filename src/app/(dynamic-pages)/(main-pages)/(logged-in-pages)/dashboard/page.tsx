@@ -1,13 +1,12 @@
 'use client';
 import { Database } from '@/lib/database.types';
-import { ChevronDown, Clock, Filter, MapPin, Monitor, Search, Users, Volume2, VolumeX, Wifi } from 'lucide-react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { ChevronDown, Filter, MapPin, Monitor, Search, Users, Volume2, Wifi } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export const dynamic = 'force-dynamic';
 
 type Room = Database['public']['Tables']['rooms']['Row']
-
-
 
 const StudySpaceDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,76 +15,7 @@ const StudySpaceDashboard = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Mock data for demonstration
-
-  const mockRooms = [
-    {
-      id: 1,
-      name: 'Room 101',
-      building: 'Science Building',
-      capacity: 30,
-      availableFor: 120, // minutes
-      nextClass: '2:00 PM - Physics Lab',
-      amenities: ['projector', 'whiteboard', 'wifi', 'macLab'], // <-- Added 'macLab'
-      floor: 1,
-      isQuiet: true
-    },
-    {
-      id: 2,
-      name: 'Room 205',
-      building: 'Arts Building',
-      capacity: 45,
-      availableFor: 45,
-      nextClass: '1:15 PM - Literature Seminar',
-      amenities: ['projector', 'wifi', 'sound_system'],
-      floor: 2,
-      isQuiet: false
-    },
-    {
-      id: 3,
-      name: 'Room 312',
-      building: 'Science Building',
-      capacity: 20,
-      availableFor: 300,
-      nextClass: '4:00 PM - Chemistry Lab',
-      amenities: ['whiteboard', 'wifi'],
-      floor: 3,
-      isQuiet: true
-    },
-    {
-      id: 4,
-      name: 'Lecture Hall A',
-      building: 'Main Building',
-      capacity: 100,
-      availableFor: 90,
-      nextClass: '2:30 PM - Economics 101',
-      amenities: ['projector', 'sound_system', 'wifi'],
-      floor: 1,
-      isQuiet: false
-    },
-    {
-      id: 5,
-      name: 'Room 150',
-      building: 'Arts Building',
-      capacity: 25,
-      availableFor: 180,
-      nextClass: '3:00 PM - Art History',
-      amenities: ['whiteboard', 'wifi'],
-      floor: 1,
-      isQuiet: true
-    },
-    {
-      id: 6,
-      name: 'Room 302',
-      building: 'Science Building',
-      capacity: 22,
-      availableFor: 60,
-      nextClass: '3:30 PM - Biology',
-      amenities: ['projector', 'wifi', 'macLab'], // <-- Added 'macLab'
-      floor: 3,
-      isQuiet: false
-    }
-  ];
+  const [roomData, setRoomData] = useState<Room[]>([]);
 
   const buildings = ['all', 'Science Building', 'Arts Building', 'Main Building'];
   const timeFilters = [
@@ -94,6 +24,24 @@ const StudySpaceDashboard = () => {
     { value: '2hours', label: 'Next 2 Hours' },
     { value: 'today', label: 'Rest of Today' }
   ];
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const supabase = createClientComponentClient<Database>();
+
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching rooms:', error);
+      } else {
+        setRoomData(data);
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   // Update time every minute
   useEffect(() => {
@@ -104,9 +52,9 @@ const StudySpaceDashboard = () => {
   }, []);
 
   // Filter rooms based on search and filters
-  const filteredRooms = mockRooms.filter(room => {
+  const filteredRooms = roomData.filter(room => {
     const matchesSearch = room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      room.building.toLowerCase().includes(searchTerm.toLowerCase());
+      (room.building || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBuilding = selectedBuilding === 'all' || room.building === selectedBuilding;
     return matchesSearch && matchesBuilding;
   });
@@ -133,14 +81,13 @@ const StudySpaceDashboard = () => {
       case 'wifi': return <Wifi className="w-4 h-4" />;
       case 'sound_system': return <Volume2 className="w-4 h-4" />;
       case 'whiteboard': return <div className="w-4 h-4 bg-current rounded-sm" />;
-      case 'macLab': return <span className="text-xl" title="Mac Lab"></span>; // <-- Mac Lab icon
+      case 'macLab': return <span className="text-xl" title="Mac Lab"></span>;
       default: return null;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 mx-auto">
-      {/* Main Content */}
       <div className="w-full py-6">
         {/* Search and Filters */}
         <div className="mb-6 space-y-4">
@@ -235,23 +182,13 @@ const StudySpaceDashboard = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {room.name} {room.isQuiet ? (
-                        <VolumeX className="w-5 h-5 text-indigo-600" />
-                      ) : (
-                        <Volume2 className="w-5 h-5 text-gray-400" />
-                      )}
+                      {room.name}
                     </h3>
                     <div className="flex items-center text-sm text-gray-600 mt-1">
                       <MapPin className="w-4 h-4 mr-1" />
-                      {room.building}, Floor {room.floor}
+                      {room.building}, Type: {room.type}
                     </div>
                   </div>
-                </div>
-
-                {/* Availability Status */}
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-4 ${getAvailabilityColor(room.availableFor)}`}>
-                  <Clock className="w-4 h-4 mr-1" />
-                  Available for the next {formatAvailability(room.availableFor)}
                 </div>
 
                 {/* Room Details */}
@@ -263,29 +200,11 @@ const StudySpaceDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Next Class */}
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Next class:</span> {room.nextClass}
-                  </div>
-
-                  {/* Amenities */}
-                  <div className="flex items-center space-x-2">
-                    {room.amenities.map((amenity) => (
-                      <div
-                        key={amenity}
-                        className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-lg text-gray-600"
-                        title={amenity.replace('_', ' ')}
-                      >
-                        {getAmenityIcon(amenity)}
-                      </div>
-                    ))}
-                  </div>
+                  {/* Action Button */}
+                  <button className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                    View Schedule
+                  </button>
                 </div>
-
-                {/* Action Button */}
-                <button className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-                  View Schedule
-                </button>
               </div>
             </div>
           ))}
