@@ -1,53 +1,31 @@
 import { Database } from '@/lib/database.types';
 import { createSupabaseClient } from '@/supabase-clients/server';
-import { cookies, headers } from 'next/headers';
 
-type Room = Database['public']['Tables']['rooms']['Row']
-
+type Room = Database['public']['Tables']['rooms']['Row'];
 
 export default async function Data() {
-
-
-    const supabase = createSupabaseClient({
-        cookies: cookies(),
-        headers: headers(),
-    })
-
-    // export async function getPrivateItem(id: string): Promise<Room | null> {
-    //     const supabase = createSupabaseClient({
-    //       cookies: cookies(),
-    //       headers: headers(),
-    //     });}
-
+    const supabase = await createSupabaseClient();
 
     const { data, error } = await supabase
         .from('rooms')
         .select('*')
+        .returns<Room[]>(); // <--- Force return type
 
-    if (error) {
-        console.error('Error fetching data:', error)
-        return <p>Failed to load data</p>
+    if (error || !data) {
+        return <p>Failed to load data</p>;
     }
-
-    console.log('Supabase data:', data)
 
     return (
         <div>
             <h1>Rooms Data From DB</h1>
-
             <ul>
-                {data?.length ? (
-                    data.map((room: Room) => (
-                        <li key={room.id}>
-                            <strong>{room.name}</strong><br />
-                            <p>{room.type}</p>
-                        </li>
-                    ))
-                ) : (
-                    <li>No rooms found</li>
-                )}
-
+                {data.map((room) => (
+                    <li key={room.id}>
+                        <strong>{room.name}</strong><br />
+                        <p>{room.type}</p>
+                    </li>
+                ))}
             </ul>
         </div>
-    )
+    );
 }

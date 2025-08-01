@@ -41,7 +41,7 @@ export function Login({
     if (next) {
       router.push(`/auth/callback?next=${next}`);
     } else {
-      router.push('/');
+      router.push('/dashboard');
     }
   }
 

@@ -1,15 +1,16 @@
 'use client';
 import { Database } from '@/lib/database.types';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { ChevronDown, Filter, MapPin, Monitor, Search, Users, Volume2, Wifi } from 'lucide-react';
+import { ChevronDown, Filter, MapPin, Search, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export const dynamic = 'force-dynamic';
 
 type Room = Database['public']['Tables']['rooms']['Row']
-type RoomSchedule = Database['public']['Tables']['room_schedules']['Row']
 
 const StudySpaceDashboard = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBuilding, setSelectedBuilding] = useState('all');
   const [selectedTime, setSelectedTime] = useState('now');
@@ -17,7 +18,6 @@ const StudySpaceDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   const [roomData, setRoomData] = useState<Room[]>([]);
-  const [roomSchedules, setRoomSchedules] = useState<RoomSchedule[]>([]);
 
   const buildings = ['all', 'Science Building', 'Arts Building', 'Main Building'];
   const timeFilters = [
@@ -28,37 +28,21 @@ const StudySpaceDashboard = () => {
   ];
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRooms = async () => {
       const supabase = createClientComponentClient<Database>();
 
-      // Fetch rooms
-      const { data: roomsData, error: roomsError } = await supabase
+      const { data, error } = await supabase
         .from('rooms')
         .select('*');
 
-      if (roomsError) {
-        console.error('Error fetching rooms:', roomsError);
+      if (error) {
+        console.error('Error fetching rooms:', error);
       } else {
-        setRoomData(roomsData);
-      }
-
-      // Fetch today's room schedules
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-      const { data: schedulesData, error: schedulesError } = await supabase
-        .from('room_schedules')
-        .select('*')
-        .eq('date', today)
-        .gte('time_from', new Date().toTimeString().slice(0, 5)) // Current time in HH:MM format
-        .order('time_from', { ascending: true });
-
-      if (schedulesError) {
-        console.error('Error fetching room schedules:', schedulesError);
-      } else {
-        setRoomSchedules(schedulesData || []);
+        setRoomData(data);
       }
     };
 
-    fetchData();
+    fetchRooms();
   }, []);
 
   // Update time every minute
@@ -68,48 +52,6 @@ const StudySpaceDashboard = () => {
     }, 60000);
     return () => clearInterval(timer);
   }, []);
-
-  // Calculate time remaining for a room
-  const getTimeRemaining = (roomId: string): { text: string; color: string } => {
-    const roomBookings = roomSchedules.filter(schedule => schedule.room_id === roomId);
-
-    if (roomBookings.length === 0) {
-      return { text: 'Available all day', color: 'text-gray-600 bg-gray-100' };
-    }
-
-    const nextBooking = roomBookings[0];
-    const nextBookingTime = new Date();
-    const [hours, minutes] = nextBooking.time_from.split(':').map(Number);
-    nextBookingTime.setHours(hours, minutes, 0, 0);
-
-    const timeDiff = nextBookingTime.getTime() - currentTime.getTime();
-    const minutesRemaining = Math.floor(timeDiff / (1000 * 60));
-
-    if (minutesRemaining <= 0) {
-      return { text: 'Available all day', color: 'text-gray-600 bg-gray-100' };
-    }
-
-    let text: string;
-    let color: string;
-
-    if (minutesRemaining < 30) {
-      color = 'text-red-600 bg-red-50';
-    } else if (minutesRemaining < 120) {
-      color = 'text-amber-600 bg-amber-50';
-    } else {
-      color = 'text-emerald-600 bg-emerald-50';
-    }
-
-    if (minutesRemaining < 60) {
-      text = `${minutesRemaining}m available`;
-    } else {
-      const hours = Math.floor(minutesRemaining / 60);
-      const remainingMinutes = minutesRemaining % 60;
-      text = remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m available` : `${hours}h available`;
-    }
-
-    return { text, color };
-  };
 
   // Filter rooms based on search and filters
   const filteredRooms = roomData.filter(room => {
@@ -135,20 +77,20 @@ const StudySpaceDashboard = () => {
     return 'text-emerald-600 bg-emerald-50';
   };
 
-  const getAmenityIcon = (amenity) => {
-    switch (amenity) {
-      case 'projector': return <Monitor className="w-4 h-4" />;
-      case 'wifi': return <Wifi className="w-4 h-4" />;
-      case 'sound_system': return <Volume2 className="w-4 h-4" />;
-      case 'whiteboard': return <div className="w-4 h-4 bg-current rounded-sm" />;
-      case 'macLab': return <span className="text-xl" title="Mac Lab"></span>;
-      default: return null;
-    }
-  };
+  // const getAmenityIcon = (amenity) => {
+  //   switch (amenity) {
+  //     case 'projector': return <Monitor className="w-4 h-4" />;
+  //     case 'wifi': return <Wifi className="w-4 h-4" />;
+  //     case 'sound_system': return <Volume2 className="w-4 h-4" />;
+  //     case 'whiteboard': return <div className="w-4 h-4 bg-current rounded-sm" />;
+  //     case 'macLab': return <span className="text-xl" title="Mac Lab"></span>;
+  //     default: return null;
+  //   }
+  // };
 
   return (
-    <div className="min-h-screen bg-gray-50 mx-auto">
-      <div className="w-full py-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full px-6 py-6">
         {/* Search and Filters */}
         <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -235,47 +177,42 @@ const StudySpaceDashboard = () => {
 
         {/* Room Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRooms.map((room) => {
-            const timeRemaining = getTimeRemaining(room.id);
-
-            return (
-              <div key={room.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <div className="p-6">
-                  {/* Room Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {room.name}
-                      </h3>
-                      {/* Time Remaining Tag */}
-                      <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-2 ${timeRemaining.color}`}>
-                        {timeRemaining.text}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600 mt-2">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {room.building}, Type: {room.type}
-                      </div>
+          {filteredRooms.map((room) => (
+            <div key={room.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <div className="p-6">
+                {/* Room Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {room.name}
+                    </h3>
+                    <div className="flex items-center text-sm text-gray-600 mt-1">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {room.building}, Type: {room.type}
                     </div>
-                  </div>
-
-                  {/* Room Details */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-1" />
-                        Capacity: {room.capacity}
-                      </div>
-                    </div>
-
-                    {/* Action Button */}
-                    <button className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-                      View Schedule
-                    </button>
                   </div>
                 </div>
+
+                {/* Room Details */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center text-gray-600">
+                      <Users className="w-4 h-4 mr-1" />
+                      Capacity: {room.capacity}
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={() => router.push(`/room-schedules/${room.id}`)}
+                    className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                  >
+                    View Schedule
+                  </button>
+                </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Empty State */}
