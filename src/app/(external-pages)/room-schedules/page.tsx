@@ -119,7 +119,7 @@ const RoomSchedulesPage = () => {
 
                 {/* Search and Filters */}
                 <div className="mb-6">
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                    <div className="bg-white rounded-xs border border-gray-200 p-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Search Bar */}
                             <div>
@@ -183,7 +183,7 @@ const RoomSchedulesPage = () => {
                         const roomSchedules = getRoomSchedules(room.id, selectedDate);
 
                         return (
-                            <div key={room.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+                            <div key={room.id} className="bg-white rounded-sm border border-gray-200 shadow-xs">
                                 <div className="p-6">
                                     {/* Room Header */}
                                     <div className="flex items-start justify-between mb-4">
@@ -229,7 +229,7 @@ const RoomSchedulesPage = () => {
                                         {/* Navigation Button */}
                                         <button
                                             onClick={() => router.push(`/room-schedules/${room.id}`)}
-                                            className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                                            className="w-full mt-4 px-4 py-2 bg-cyan-600 text-white rounded-sm hover:bg-indigo-700 transition-colors font-medium"
                                         >
                                             View Detailed Schedule
                                         </button>
@@ -254,6 +254,7 @@ const RoomSchedulesPage = () => {
                             onClick={() => {
                                 setSearchTerm('');
                                 setSelectedBuilding('all');
+                                setSelectedDate(new Date().toISOString().split('T')[0]);
                             }}
                             className="text-indigo-600 hover:text-indigo-700 font-medium"
                         >
