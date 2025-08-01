@@ -27,7 +27,8 @@ const RoomSchedulePage = () => {
 
     const roomId = params.roomId as string;
     const view = searchParams.get('view') || 'week';
-    const selectedDate = searchParams.get('date') || new Date().toISOString().split('T')[0];
+    const dateParam = searchParams.get('date');
+    const selectedDate = dateParam || new Date().toISOString().split('T')[0];
 
     const [room, setRoom] = useState<Room | null>(null);
     const [schedules, setSchedules] = useState<RoomSchedule[]>([]);
@@ -77,12 +78,11 @@ const RoomSchedulePage = () => {
         const now = new Date();
         const currentTime = now.getHours() * 60 + now.getMinutes();
 
-        const todaySchedules = schedules.filter(schedule => {
-            const scheduleDate = new Date(schedule.date);
-            return scheduleDate.toDateString() === now.toDateString();
+        const targetSchedules = schedules.filter(schedule => {
+            return schedule.date === selectedDate;
         });
 
-        for (const schedule of todaySchedules) {
+        for (const schedule of targetSchedules) {
             const [startHours, startMinutes] = schedule.time_from.split(':').map(Number);
             const [endHours, endMinutes] = schedule.time_to.split(':').map(Number);
             const startTime = startHours * 60 + startMinutes;
@@ -94,7 +94,7 @@ const RoomSchedulePage = () => {
         }
 
         // Find next schedule
-        const nextSchedule = todaySchedules.find(schedule => {
+        const nextSchedule = targetSchedules.find(schedule => {
             const [startHours, startMinutes] = schedule.time_from.split(':').map(Number);
             const startTime = startHours * 60 + startMinutes;
             return startTime > currentTime;
@@ -104,7 +104,14 @@ const RoomSchedulePage = () => {
             return { status: 'Available', color: 'text-green-600', until: formatTime(nextSchedule.time_from) };
         }
 
-        return { status: 'Available', color: 'text-green-600', until: 'All day' };
+        // Check if the selected date is today
+        const isToday = selectedDate === new Date().toISOString().split('T')[0];
+
+        if (isToday) {
+            return { status: 'Available', color: 'text-green-600', until: 'All day' };
+        } else {
+            return { status: 'No schedules', color: 'text-gray-600', until: 'for this date' };
+        }
     };
 
     const formatTime = (timeString: string) => {
@@ -271,15 +278,7 @@ const RoomSchedulePage = () => {
                 {/* View Toggle */}
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-2">
-                        <button
-                            onClick={() => router.push(`/room-schedules/${roomId}?view=day`)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${view === 'day'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                        >
-                            Day
-                        </button>
+
                         <button
                             onClick={() => router.push(`/room-schedules/${roomId}?view=week`)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${view === 'week'

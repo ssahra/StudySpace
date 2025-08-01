@@ -228,7 +228,7 @@ const RoomSchedulesPage = () => {
 
                                         {/* Navigation Button */}
                                         <button
-                                            onClick={() => router.push(`/room-schedules/${room.id}`)}
+                                            onClick={() => router.push(`/room-schedules/${room.id}?date=${selectedDate}`)}
                                             className="w-full mt-4 px-4 py-2 bg-cyan-600 text-white rounded-sm hover:bg-indigo-700 transition-colors font-medium"
                                         >
                                             View Detailed Schedule
