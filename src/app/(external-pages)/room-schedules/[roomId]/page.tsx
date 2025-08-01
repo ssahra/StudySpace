@@ -7,10 +7,7 @@ import {
     ChevronLeft,
     ChevronRight,
     MapPin,
-    Monitor,
-    Users,
-    Volume2,
-    Wifi
+    Users
 } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -220,10 +217,7 @@ const RoomSchedulePage = () => {
                             <div className="flex-1">
                                 <div className="flex items-center space-x-3 mb-2">
                                     <h1 className="text-3xl font-bold text-gray-900">{room.name}</h1>
-                                    <div className="flex items-center space-x-1 px-2 py-1 bg-gray-100 rounded-full">
-                                        <Volume2 className="w-4 h-4 text-gray-600" />
-                                        <span className="text-sm text-gray-600">Quiet Zone</span>
-                                    </div>
+
                                 </div>
 
                                 <div className="flex items-center text-gray-600 mb-2">
@@ -236,27 +230,7 @@ const RoomSchedulePage = () => {
                                     <span>Capacity: {room.capacity}</span>
                                 </div>
 
-                                <p className="text-gray-700 mb-4">
-                                    Modern classroom with natural lighting and flexible seating arrangement.
-                                </p>
 
-                                <div className="flex items-center space-x-4">
-                                    <span className="text-sm font-medium text-gray-700">Amenities:</span>
-                                    <div className="flex items-center space-x-3">
-                                        <div className="flex items-center space-x-1">
-                                            <Monitor className="w-4 h-4 text-gray-600" />
-                                            <span className="text-sm text-gray-600">Monitor</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <Volume2 className="w-4 h-4 text-gray-600" />
-                                            <span className="text-sm text-gray-600">Projector</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <Wifi className="w-4 h-4 text-gray-600" />
-                                            <span className="text-sm text-gray-600">Wi-Fi</span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Current Status */}
@@ -325,7 +299,7 @@ const RoomSchedulePage = () => {
                 </div>
 
                 {/* Schedule Grid */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>

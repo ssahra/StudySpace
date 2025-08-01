@@ -178,7 +178,7 @@ const StudySpaceDashboard = () => {
         {/* Room Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredRooms.map((room) => (
-            <div key={room.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+            <div key={room.id} className="bg-white rounded-sm border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
               <div className="p-6">
                 {/* Room Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -205,7 +205,7 @@ const StudySpaceDashboard = () => {
                   {/* Action Button */}
                   <button
                     onClick={() => router.push(`/room-schedules/${room.id}`)}
-                    className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                    className="w-full mt-4 px-4 py-2 bg-cyan-700 text-white rounded-lg hover:bg-cyan-800 transition-colors font-medium"
                   >
                     View Schedule
                   </button>
