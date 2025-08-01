@@ -1,7 +1,7 @@
 'use client';
 import { Database } from '@/lib/database.types';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Calendar, ChevronDown, Clock, Filter, MapPin, Search } from 'lucide-react';
+import { Calendar, Clock, MapPin, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -18,7 +18,6 @@ const RoomSchedulesPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBuilding, setSelectedBuilding] = useState('all');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    const [showFilters, setShowFilters] = useState(false);
 
     const buildings = ['all', 'Science Building', 'Arts Building', 'Main Building', 'Copland', 'Cavendish'];
 
@@ -119,37 +118,28 @@ const RoomSchedulesPage = () => {
                 </div>
 
                 {/* Search and Filters */}
-                <div className="mb-6 space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        {/* Search Bar */}
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                            <input
-                                type="text"
-                                placeholder="Search rooms or buildings..."
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
+                <div className="mb-6">
+                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Search Bar */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search rooms or buildings..."
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                            </div>
 
-                        {/* Filter Toggle */}
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center space-x-2 px-4 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-                        >
-                            <Filter className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-700">Filters</span>
-                            <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                        </button>
-                    </div>
-
-                    {/* Filter Panel */}
-                    {showFilters && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Building</label>
+                            {/* Building Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Building</label>
+                                <div>
                                     <select
                                         value={selectedBuilding}
                                         onChange={(e) => setSelectedBuilding(e.target.value)}
@@ -162,9 +152,12 @@ const RoomSchedulesPage = () => {
                                         ))}
                                     </select>
                                 </div>
+                            </div>
 
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            {/* Date Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                                <div>
                                     <input
                                         type="date"
                                         value={selectedDate}
@@ -174,7 +167,7 @@ const RoomSchedulesPage = () => {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* Results Summary */}
