@@ -55,16 +55,22 @@ const RoomSchedulesPage = () => {
         fetchData();
     }, []);
 
+    const getRoomSchedules = (roomId: string, date?: string) => {
+        const targetDate = date || new Date().toISOString().split('T')[0];
+        return schedules.filter(schedule =>
+            schedule.room_id === roomId &&
+            schedule.date === targetDate
+        );
+    };
+
     const filteredRooms = rooms.filter(room => {
         const matchesSearch = room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (room.building || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesBuilding = selectedBuilding === 'all' || room.building === selectedBuilding;
-        return matchesSearch && matchesBuilding;
+        const matchesDate = selectedDate === new Date().toISOString().split('T')[0] ||
+            getRoomSchedules(room.id, selectedDate).length > 0;
+        return matchesSearch && matchesBuilding && matchesDate;
     });
-
-    const getRoomSchedules = (roomId: string) => {
-        return schedules.filter(schedule => schedule.room_id === roomId);
-    };
 
     const formatTime = (timeString: string) => {
         const [hours, minutes] = timeString.split(':').map(Number);
@@ -109,7 +115,7 @@ const RoomSchedulesPage = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Room Schedules</h1>
-                    <p className="text-gray-600">View detailed schedules for all rooms</p>
+                    <p className="text-gray-600">View schedules for all rooms</p>
                 </div>
 
                 {/* Search and Filters */}
@@ -181,7 +187,7 @@ const RoomSchedulesPage = () => {
                 {/* Room Schedules */}
                 <div className="space-y-6">
                     {filteredRooms.map((room) => {
-                        const roomSchedules = getRoomSchedules(room.id);
+                        const roomSchedules = getRoomSchedules(room.id, selectedDate);
 
                         return (
                             <div key={room.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm">
@@ -223,7 +229,7 @@ const RoomSchedulesPage = () => {
                                         ) : (
                                             <div className="text-center py-8 text-gray-500">
                                                 <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                                                <p>No schedules found for this room</p>
+                                                <p>No schedules found for this room on {selectedDate}</p>
                                             </div>
                                         )}
 
