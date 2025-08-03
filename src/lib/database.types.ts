@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          booking_date: string
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          notes: string | null
+          room_id: string
+          status: string
+          time_from: string
+          time_to: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          booking_date: string
+          created_at?: string | null
+          duration_minutes: number
+          id?: string
+          notes?: string | null
+          room_id: string
+          status?: string
+          time_from: string
+          time_to: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          booking_date?: string
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          notes?: string | null
+          room_id?: string
+          status?: string
+          time_from?: string
+          time_to?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       room_schedules: {
         Row: {
           created_at: string | null

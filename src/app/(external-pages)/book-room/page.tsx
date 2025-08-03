@@ -1,4 +1,13 @@
 'use client';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Database } from '@/lib/database.types';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import {
@@ -28,6 +37,13 @@ const BookRoomPage = () => {
     const [selectedTime, setSelectedTime] = useState('09:00');
     const [selectedDuration, setSelectedDuration] = useState('60');
     const [showFilters, setShowFilters] = useState(false);
+    const [dateError, setDateError] = useState<string | null>(null);
+
+    // Modal states
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [isBooking, setIsBooking] = useState(false);
+    const [bookingError, setBookingError] = useState<string | null>(null);
 
     const buildings = ['all', 'Science Building', 'Arts Building', 'Main Building', 'Copland', 'Cavendish'];
     const timeSlots = [
@@ -108,6 +124,100 @@ const BookRoomPage = () => {
         return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
     };
 
+    const isDateValid = (date: string) => {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        return date >= today;
+    };
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newDate = e.target.value;
+        setSelectedDate(newDate);
+
+        if (!isDateValid(newDate)) {
+            setDateError('Please select a valid date');
+        } else {
+            setDateError(null);
+        }
+    };
+
+    // Booking functions
+    const handleBookRoom = (room: Room) => {
+        setSelectedRoom(room);
+        setShowConfirmationModal(true);
+        setBookingError(null);
+    };
+
+    const handleConfirmBooking = async () => {
+        if (!selectedRoom) return;
+
+        setIsBooking(true);
+        setBookingError(null);
+
+        try {
+            const supabase = createClientComponentClient<Database>();
+
+            // Get current user
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            // TODO: Uncomment this when ready for production
+            // if (userError || !user) {
+            //     throw new Error('You must be logged in to book a room');
+            // }
+
+            // For testing: handle case where no user is logged in
+            if (!user) {
+                // Simulate successful booking for testing
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+                setShowConfirmationModal(false);
+                setSelectedRoom(null);
+                alert('Booking submitted successfully! Your request is pending approval. (Test mode - no user logged in)');
+                return;
+            }
+
+            // Check if room is still available
+            if (!isRoomAvailable(selectedRoom.id, selectedDate, selectedTime, parseInt(selectedDuration))) {
+                throw new Error('This room is no longer available for the selected time');
+            }
+
+            // Create booking with real user
+            const { data: booking, error: bookingError } = await supabase
+                .from('bookings')
+                .insert({
+                    room_id: selectedRoom.id,
+                    user_id: user.id,
+                    booking_date: selectedDate,
+                    time_from: selectedTime,
+                    time_to: getEndTime(selectedTime, parseInt(selectedDuration)),
+                    duration_minutes: parseInt(selectedDuration),
+                    status: 'pending'
+                })
+                .select()
+                .single();
+
+            if (bookingError) {
+                throw new Error(`Booking failed: ${bookingError.message}`);
+            }
+
+            // Close modal and show success
+            setShowConfirmationModal(false);
+            setSelectedRoom(null);
+
+            // You could add a toast notification here
+            alert('Booking submitted successfully! Your request is pending approval.');
+
+        } catch (error) {
+            setBookingError(error instanceof Error ? error.message : 'An error occurred while booking');
+        } finally {
+            setIsBooking(false);
+        }
+    };
+
+    const handleCancelBooking = () => {
+        setShowConfirmationModal(false);
+        setSelectedRoom(null);
+        setBookingError(null);
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -139,9 +249,15 @@ const BookRoomPage = () => {
                                 <input
                                     type="date"
                                     value={selectedDate}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    onChange={handleDateChange}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${dateError ? 'border-red-300' : 'border-gray-300'
+                                        }`}
                                 />
+                                {dateError && (
+                                    <div className="text-red-600 text-sm mt-1">
+                                        {dateError}
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -183,8 +299,14 @@ const BookRoomPage = () => {
                                     ({selectedDuration} minutes)
                                 </span>
                             </div>
-                            <button className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-                                Confirm Booking
+                            <button
+                                disabled={!!dateError}
+                                className={`w-full px-4 py-2 rounded-lg transition-colors font-medium ${dateError
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-cyan-600 text-white hover:bg-cyan-700'
+                                    }`}
+                            >
+                                Show Available Rooms
                             </button>
                         </div>
                     </div>
@@ -285,7 +407,10 @@ const BookRoomPage = () => {
                                     </div>
 
                                     {/* Book Button */}
-                                    <button className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                                    <button
+                                        onClick={() => handleBookRoom(room)}
+                                        className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                                    >
                                         Book This Room
                                     </button>
                                 </div>
@@ -316,6 +441,109 @@ const BookRoomPage = () => {
                     </div>
                 )}
             </div>
+
+            {/* Booking Confirmation Modal */}
+            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center space-x-2">
+                            <Calendar className="w-5 h-5 text-indigo-600" />
+                            <span>Confirm Booking</span>
+                        </DialogTitle>
+                        <DialogDescription>
+                            Please review your booking details before confirming.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {selectedRoom && (
+                        <div className="space-y-4">
+                            {/* Room Details */}
+                            <div className="bg-gray-50 rounded-lg p-4">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h3 className="font-semibold text-gray-900">{selectedRoom.name}</h3>
+                                        <p className="text-sm text-gray-600">{selectedRoom.building}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Available
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Type:</span>
+                                        <p className="font-medium">{selectedRoom.type}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Capacity:</span>
+                                        <p className="font-medium">{selectedRoom.capacity} people</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Booking Details */}
+                            <div className="space-y-3">
+                                <h4 className="font-medium text-gray-900">Booking Details</h4>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Date:</span>
+                                        <p className="font-medium">
+                                            {new Date(selectedDate).toLocaleDateString('en-US', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Duration:</span>
+                                        <p className="font-medium">{selectedDuration} minutes</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <span className="text-gray-500">Time:</span>
+                                        <p className="font-medium">
+                                            {formatTime(selectedTime)} - {getEndTime(selectedTime, parseInt(selectedDuration))}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Error Message */}
+                            {bookingError && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                                    <p className="text-sm text-red-600">{bookingError}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <DialogFooter className="flex space-x-2">
+                        <Button
+                            variant="outline"
+                            onClick={handleCancelBooking}
+                            disabled={isBooking}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmBooking}
+                            disabled={isBooking}
+                            className="bg-indigo-600 hover:bg-indigo-700"
+                        >
+                            {isBooking ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    Booking...
+                                </>
+                            ) : (
+                                'Confirm Booking'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

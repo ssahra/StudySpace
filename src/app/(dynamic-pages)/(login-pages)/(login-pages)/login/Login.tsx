@@ -17,6 +17,7 @@ import {
   signInWithPasswordAction,
   signInWithProviderAction,
 } from '@/data/auth/auth';
+import { createClient } from '@/supabase-clients/client';
 import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -37,10 +38,101 @@ export function Login({
 
   const router = useRouter();
 
-  function redirectToDashboard() {
+  async function redirectToDashboard() {
     if (next) {
       router.push(`/auth/callback?next=${next}`);
-    } else {
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        console.error('Error getting user:', userError);
+        router.push('/dashboard');
+        return;
+      }
+
+      // Get user role from database
+      console.log('Checking role for user ID:', user.id);
+
+      const { data: userData, error: roleError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      console.log('Role query result:', { userData, roleError });
+
+      if (roleError) {
+        console.error('Error getting user role:', roleError);
+        // Check if user doesn't exist in users table
+        if (roleError.code === 'PGRST116') {
+          console.log('User not found in users table, creating user record...');
+          // Try to create user record with default role
+          const { error: createError } = await supabase
+            .from('users')
+            .insert({
+              id: user.id,
+              username: user.email,
+              role: 'student', // Default role
+              createdat: new Date().toISOString()
+            });
+
+          if (createError) {
+            console.error('Error creating user record:', createError);
+            router.push('/dashboard');
+            return;
+          }
+
+          // Now try to get the role again
+          const { data: newUserData, error: newRoleError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+          if (newRoleError || !newUserData) {
+            console.error('Error getting user role after creation:', newRoleError);
+            router.push('/dashboard');
+            return;
+          }
+
+          // Use the new user data
+          console.log('User role (new user):', newUserData.role);
+          if (newUserData.role === 'admin') {
+            router.push('/admin-dashboard');
+          } else {
+            router.push('/dashboard');
+          }
+          return;
+        } else {
+          router.push('/dashboard');
+          return;
+        }
+      }
+
+      if (!userData) {
+        console.error('No user data found');
+        router.push('/dashboard');
+        return;
+      }
+
+      // Route based on role
+      console.log('User role (existing user):', userData.role);
+      if (userData.role === 'admin') {
+        router.push('/admin-dashboard');
+      } else {
+        // For student, staff, or any other role
+        router.push('/dashboard');
+      }
+
+    } catch (error) {
+      console.error('Error in role-based routing:', error);
+      // Fallback to dashboard on any error
       router.push('/dashboard');
     }
   }
@@ -77,12 +169,12 @@ export function Login({
       onExecute: () => {
         toastRef.current = toast.loading('Logging in...');
       },
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Logged in!', {
           id: toastRef.current,
         });
         toastRef.current = undefined;
-        redirectToDashboard();
+        await redirectToDashboard();
         setRedirectInProgress(true);
       },
       onError: (error) => {
