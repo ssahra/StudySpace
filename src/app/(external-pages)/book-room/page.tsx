@@ -9,7 +9,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Database } from '@/lib/database.types';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+//import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/supabase-clients/client';
 import {
     Calendar,
     CheckCircle,
@@ -54,7 +55,7 @@ const BookRoomPage = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const supabase = createClientComponentClient<Database>();
+            const supabase = createClient();
 
             // Fetch rooms
             const { data: roomsData, error: roomsError } = await supabase
@@ -154,7 +155,7 @@ const BookRoomPage = () => {
         setBookingError(null);
 
         try {
-            const supabase = createClientComponentClient<Database>();
+            const supabase = createClient();
 
             // Get current user
             const { data: { user }, error: userError } = await supabase.auth.getUser();
