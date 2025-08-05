@@ -1,4 +1,5 @@
 'use client';
+import { BookOpen } from 'lucide-react';
 import Link from 'next/link';
 // const DynamicLoginNavLink = dynamic(
 //   () => import('./LoginNavLink').then((module) => module.LoginNavLink),
@@ -77,17 +78,17 @@ export const ExternalNavigation = () => {
   return (
     <header className="container mx-auto px-4 lg:px-6 h-14 flex items-center">
       <Link className="flex items-center justify-center" href="/">
-        <img
-          src="/studyspace-logo.png"
-          alt="StudySpace Logo"
-          className="h-10 w-10"
-        />
-        <span className="hidden lg:block ml-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
-          StudySpace
-        </span>
-        <span className="block lg:hidden ml-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
-          StudySpace
-        </span>
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-white" />
+          </div>
+          <span className="hidden lg:block text-xl font-bold text-gray-900 dark:text-gray-100">
+            StudySpace
+          </span>
+          <span className="block lg:hidden text-xl font-bold text-gray-900 dark:text-gray-100">
+            StudySpace
+          </span>
+        </div>
       </Link>
       <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
         <Link
