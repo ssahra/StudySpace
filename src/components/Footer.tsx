@@ -5,7 +5,6 @@ import {
   Clock,
   Github,
   Linkedin,
-  MapPin,
   Twitter
 } from 'lucide-react';
 
@@ -16,8 +15,7 @@ const Footer = () => {
     { name: 'Find Rooms', href: '/dashboard', icon: <BookOpen className="w-4 h-4" /> },
     { name: 'Book Rooms', href: '/book-room', icon: <Calendar className="w-4 h-4" /> },
     { name: 'Manage Bookings', href: '/user-manage-bookings', icon: <ClipboardList className="w-4 h-4" /> },
-    { name: 'Room Schedules', href: '/room-schedules', icon: <Clock className="w-4 h-4" /> },
-    { name: 'DB Testing', href: '/db-testing', icon: <MapPin className="w-4 h-4" /> }
+    { name: 'Room Schedules', href: '/room-schedules', icon: <Clock className="w-4 h-4" /> }
   ];
 
   const legalLinks = [

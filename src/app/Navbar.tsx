@@ -109,12 +109,7 @@ export const ExternalNavigation = () => {
         >
           Manage Bookings
         </Link>
-        <Link
-          className="text-sm hidden lg:block font-medium hover:underline underline-offset-4"
-          href="/db-testing"
-        >
-          DB Testing
-        </Link>
+
         <Link
           className="text-sm hidden lg:block font-medium hover:underline underline-offset-4"
           href="/room-schedules"
