@@ -241,8 +241,8 @@ export function Login({
               <Card className="border-none shadow-none">
                 <CardHeader className="py-6 px-0">
                   <CardTitle>Login to StudySpace</CardTitle>
-                  <CardDescription>
-                    Find available classrooms for studying. Login with your university email.
+                  <CardDescription className="text-cyan-500">
+                    Use "studenttest@example.com" as email and "test" as password
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 p-0">
