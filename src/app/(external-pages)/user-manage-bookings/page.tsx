@@ -22,6 +22,7 @@ import {
     Users,
     X
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export const dynamic = 'force-dynamic';
@@ -34,6 +35,7 @@ interface BookingWithRoom extends Booking {
 }
 
 const UserManageBookingsPage = () => {
+    const router = useRouter();
     const [bookings, setBookings] = useState<BookingWithRoom[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +45,7 @@ const UserManageBookingsPage = () => {
     const [selectedBooking, setSelectedBooking] = useState<BookingWithRoom | null>(null);
     const [canceling, setCanceling] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [authChecking, setAuthChecking] = useState(true);
 
     const statusOptions = [
         { value: 'all', label: 'All Statuses' },
@@ -53,10 +56,10 @@ const UserManageBookingsPage = () => {
     ];
 
     useEffect(() => {
-        fetchUserBookings();
+        checkAuthenticationAndFetchBookings();
     }, []);
 
-    const fetchUserBookings = async () => {
+    const checkAuthenticationAndFetchBookings = async () => {
         try {
             const supabase = createClient();
 
@@ -64,11 +67,33 @@ const UserManageBookingsPage = () => {
             const { data: { user }, error: userError } = await supabase.auth.getUser();
 
             if (userError || !user) {
-                console.error('Error getting user:', userError);
-                setError('Please log in to view your bookings');
+                console.error('User not authenticated:', userError);
+                setAuthChecking(false);
                 setLoading(false);
+                setError('Please log in to view your bookings');
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                    router.push('/login');
+                }, 2000);
                 return;
             }
+
+            // User is authenticated, fetch bookings
+            await fetchUserBookings(user.id);
+        } catch (error) {
+            console.error('Error checking authentication:', error);
+            setAuthChecking(false);
+            setLoading(false);
+            setError('Authentication check failed');
+            setTimeout(() => {
+                router.push('/login');
+            }, 2000);
+        }
+    };
+
+    const fetchUserBookings = async (userId: string) => {
+        try {
+            const supabase = createClient();
 
             // Fetch bookings with room details
             const { data: bookingsData, error: bookingsError } = await supabase
@@ -77,7 +102,7 @@ const UserManageBookingsPage = () => {
                     *,
                     room:rooms(*)
                 `)
-                .eq('user_id', user.id)
+                .eq('user_id', userId)
                 .order('booking_date', { ascending: false })
                 .order('time_from', { ascending: false });
 
@@ -91,6 +116,7 @@ const UserManageBookingsPage = () => {
             console.error('Error:', error);
             setError('An unexpected error occurred');
         } finally {
+            setAuthChecking(false);
             setLoading(false);
         }
     };
@@ -184,12 +210,14 @@ const UserManageBookingsPage = () => {
         });
     };
 
-    if (loading) {
+    if (loading || authChecking) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading your bookings...</p>
+                    <p className="mt-4 text-gray-600">
+                        {authChecking ? 'Checking authentication...' : 'Loading your bookings...'}
+                    </p>
                 </div>
             </div>
         );
@@ -200,11 +228,22 @@ const UserManageBookingsPage = () => {
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                        {error.includes('log in') ? 'Authentication Required' : 'Error'}
+                    </h2>
                     <p className="text-gray-600 mb-4">{error}</p>
-                    <Button onClick={() => window.location.reload()}>
-                        Try Again
-                    </Button>
+                    {error.includes('log in') ? (
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Redirecting to login page...</p>
+                            <Button onClick={() => router.push('/login')}>
+                                Go to Login
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button onClick={() => window.location.reload()}>
+                            Try Again
+                        </Button>
+                    )}
                 </div>
             </div>
         );
