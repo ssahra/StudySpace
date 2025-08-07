@@ -22,7 +22,7 @@ export default function LandingPage() {
                 <span>Real-time Classroom Availability</span>
               </div>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-                Find empty classrooms
+                Find empty classrooms <br />
                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   {' '}
                   in real-time

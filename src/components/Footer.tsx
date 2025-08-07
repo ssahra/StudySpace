@@ -3,9 +3,8 @@ import {
   Calendar,
   ClipboardList,
   Clock,
-  Github,
-  Linkedin,
-  Twitter
+  Settings,
+  Users
 } from 'lucide-react';
 
 const Footer = () => {
@@ -16,6 +15,11 @@ const Footer = () => {
     { name: 'Book Rooms', href: '/book-room', icon: <Calendar className="w-4 h-4" /> },
     { name: 'Manage Bookings', href: '/user-manage-bookings', icon: <ClipboardList className="w-4 h-4" /> },
     { name: 'Room Schedules', href: '/room-schedules', icon: <Clock className="w-4 h-4" /> }
+  ];
+
+  const adminLinks = [
+    { name: 'Admin Dashboard', href: '/admin-dashboard', icon: <Settings className="w-4 h-4" /> },
+    { name: 'Manage Bookings', href: '/admin-manage-bookings', icon: <Users className="w-4 h-4" /> }
   ];
 
   const legalLinks = [
@@ -29,33 +33,22 @@ const Footer = () => {
     <footer className="bg-gray-900 text-gray-300">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
 
           {/* Brand Section */}
-          <div>
+          <div className="md:col-span-3">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white">StudySpace</h3>
             </div>
-            <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+            <p className="text-gray-400 mb-6 text-sm leading-relaxed pe-15">
               Helping university students find the perfect study space. Real-time room availability,
               smart scheduling, and seamless booking for academic success.
             </p>
 
-            {/* Social Links */}
-            <div className="flex space-x-4">
-              <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
-                <Twitter className="w-4 h-4 text-gray-400 hover:text-white" />
-              </a>
-              <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
-                <Linkedin className="w-4 h-4 text-gray-400 hover:text-white" />
-              </a>
-              <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
-                <Github className="w-4 h-4 text-gray-400 hover:text-white" />
-              </a>
-            </div>
+
           </div>
 
           {/* Quick Links */}
@@ -76,6 +69,23 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Admin Links */}
+          <div>
+            <h4 className="text-white font-semibold mb-4">Admin Links</h4>
+            <ul className="space-y-3">
+              {adminLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                  >
+                    {link.icon}
+                    <span>{link.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
         </div>
       </div>
