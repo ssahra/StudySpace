@@ -5,7 +5,7 @@
 ## Screenshots
 
 ![Alt text](public/images/dashboard.png)
-![Alt text](public/images/admin-dashboard-2.png)
+![Alt text](public/images/admin%20manage%20bookings.png)
 ![Alt text](public/images/confirm%20booking.png)
 ![Alt text](public/images/student%20bookings.png)
 
