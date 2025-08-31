@@ -1,5 +1,15 @@
 # StudySpace
 
+## Live Demo: https://study-space-bis2.vercel.app
+
+## Screenshots
+
+![Alt text](public/images/dashboard.png)
+![Alt text](public/images/admin-dashboard-2.png)
+![Alt text](public/images/confirm%20booking.png)
+![Alt text](public/images/student%20bookings.png)
+
+
 **StudySpace** is a private web application built to help university students quickly find available, empty classrooms for studying — especially when libraries are full. It ensures students and staff can access real-time room availability filtered by time, building, and schedule.
 
 - Live Demo: https://study-space-bis2.vercel.app
