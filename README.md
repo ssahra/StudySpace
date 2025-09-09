@@ -2,17 +2,9 @@
 
 ## Live Demo: https://study-space-bis2.vercel.app
 
-## Screenshots
-
-![Alt text](public/images/dashboard.png)
-![Alt text](public/images/admin%20manage%20bookings.png)
-![Alt text](public/images/confirm%20booking.png)
-![Alt text](public/images/student%20bookings.png)
-
 
 **StudySpace** is a private web application built to help university students quickly find available, empty classrooms for studying — especially when libraries are full. It ensures students and staff can access real-time room availability filtered by time, building, and schedule.
 
-- Live Demo: https://study-space-bis2.vercel.app
 - Tech: Next.js, TypeScript, Supabase, Tailwind CSS
 
 ## Features
@@ -23,6 +15,11 @@
 - Room booking and management for students
 - Admins accept/deny booking
 
+## Screenshots
 
+![Alt text](public/images/dashboard.png)
+![Alt text](public/images/admin%20manage%20bookings.png)
+![Alt text](public/images/confirm%20booking.png)
+![Alt text](public/images/student%20bookings.png)
 
 This project is based on the Nextbase NextJS Supabase Starter by @imbhargav5.
