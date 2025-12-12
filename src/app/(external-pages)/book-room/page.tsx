@@ -160,12 +160,6 @@ const BookRoomPage = () => {
             // Get current user
             const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-            // TODO: Uncomment this when ready for production
-            // if (userError || !user) {
-            //     throw new Error('You must be logged in to book a room');
-            // }
-
-            // For testing: handle case where no user is logged in
             if (!user) {
                 // Simulate successful booking for testing
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
