@@ -1,6 +1,6 @@
 # StudySpace
 
-## Live Demo: [https://study-space-bis2.vercel.app](https://studyspace11.netlify.app)
+## Live Demo: (https://studyspace11.netlify.app)
 
 
 **StudySpace** is a private web application built to help university students quickly find available, empty classrooms for studying — especially when libraries are full. It ensures students and staff can access real-time room availability filtered by time, building, and schedule.
